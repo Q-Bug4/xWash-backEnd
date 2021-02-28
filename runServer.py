@@ -2,7 +2,7 @@
 # 项目入口
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 import json
 from conf.allowList import allowList
 from controller.factory import *
@@ -15,7 +15,7 @@ import pymysql
 logger = logger(path=os.getcwd() + '/logs/')
 db = pymysql.connect(config["sqlUrl"],config["user"],config["passwd"],config["database"])
 scheduler = APScheduler()
-app = Flask(__name__)
+app = Flask(__name__,template_folder='./templates',static_folder="./static")
 app.config["path"] = os.path.abspath(os.path.dirname(__file__))
 
 # TODO 将controller设置为application对象/requests对象
@@ -26,7 +26,7 @@ def preventEvil(s):
 
 @app.route('/')
 def hello_world():
-    return 'Hello World! message from xWash!'
+    return render_template("index.html")
 
 # 测试用
 @app.route("/update/<building>")
@@ -71,7 +71,7 @@ def getAll():
     fc = factory(db)
     controller = fc.getController("D19")
 
-    return str(controller.getAll())
+    return str(controller.getAll()).replace('\'','\"')
 
 
 if __name__ == '__main__':
